@@ -91,7 +91,7 @@ echo "import database from dump"
 gosu postgres createuser app
 gosu postgres createdb ecs -T template0 -l de_DE.utf8
 gosu postgres psql -c "ALTER DATABASE ecs OWNER TO app;"
-gosu app /bin/bash -c "cat /data/ecs-pgdump/ecs.pg_dump.gz | gzip -d | pg_restore -1 --format=custom --schema=public --no-owner --dbname=ecs"
+gosu app /bin/bash -c "cat /data/ecs-pgdump/ecs-migrate.pgdump | pg_restore -1 --format=custom --schema=public --no-owner --dbname=ecs"
 
 echo "configure and restart appliance"
 rm /run/appliance-failed
