@@ -9,16 +9,6 @@ include:
     - require:
       - sls: appliance.directories
 
-{# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=891488 #}
-{% for i in ['man1', 'man2', 'man3', 'man4', 'man5', 'man6', 'man7', 'man8'] %}
-create_man_dir_{{ i }}:
-  file.directory:
-    - name: /usr/share/man/{{ i }}
-    - makedirs: true
-    - require_in:
-      - pkg: postgresql
-{% endfor %}
-
 late_postgresql.service:
   file.managed:
     - name: /etc/systemd/system/late_postgresql.service
@@ -33,8 +23,7 @@ late_postgresql.service:
 postgresql:
   pkg.installed:
     - pkgs:
-      - postgresql
-      - postgresql-9.5
+      - postgresql-12
       - postgresql-contrib
   service.running:
     - enable: true
@@ -42,11 +31,11 @@ postgresql:
       - pkg: postgresql
       - cmd: late_postgresql.service
       - sls: docker
-      - file: /etc/postgresql/9.5/main/pg_hba.conf
+      - file: /etc/postgresql/12/main/pg_hba.conf
     - watch:
-      - file: /etc/postgresql/9.5/main/pg_hba.conf
+      - file: /etc/postgresql/12/main/pg_hba.conf
 
-/etc/postgresql/9.5/main/pg_hba.conf:
+/etc/postgresql/12/main/pg_hba.conf:
   file.replace:
     - pattern: |
         ^host.*{{ salt['pillar.get']('docker:net') }}.*
@@ -56,7 +45,7 @@ postgresql:
     - require:
       - pkg: postgresql
 
-/etc/postgresql/9.5/main/ecs.conf.template:
+/etc/postgresql/12/main/ecs.conf.template:
   file.managed:
     - source: salt://appliance/postgresql/ecs.conf.template
 
@@ -66,9 +55,9 @@ postgresql:
   ("pg_stat_statements.track", "pg_stat_statements.track = all")
   ] %}
 
-/etc/postgresql/9.5/main/postgresql.conf_{{ p }}:
+/etc/postgresql/12/main/postgresql.conf_{{ p }}:
   file.replace:
-    - name: /etc/postgresql/9.5/main/postgresql.conf
+    - name: /etc/postgresql/12/main/postgresql.conf
     - pattern: |
         ^.*{{ p }}.*
     - repl: |

@@ -26,7 +26,6 @@ salt-minion:
 ubuntu_ppa_support:
   pkg.installed:
     - pkgs:
-      - python-software-properties
       - software-properties-common
       - apt-transport-https
     - order: 10
@@ -127,7 +126,7 @@ python-common-packages:
   pkg.installed:
     - pkgs:
       - python-yaml
-      - python-requests
+      # - python-requests
       - python3-yaml
       - python3-requests
       - python3-chardet

@@ -1,14 +1,16 @@
 python:
   pkg.installed:
     - pkgs:
-      - python
+      - python2
       - python-setuptools
-      - python-pip
       - python-pip-whl
       - python3
       - python3-pip
       - python3-setuptools
       - python3-venv
+  cmd.run:
+    - name: curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip.py && python2 get-pip.py
+    - onlyif: if [[ -z "$(which pip2)" ]]; then exit 0; else exit 1; fi
 
 {# XXX pip and virtualenv is broken on xenial, update from pypi #}
 {# https://github.com/pypa/pip/issues/3282 #}

@@ -7,6 +7,7 @@ nginx:
     - pkgs:
       - nginx
       - nginx-extras
+      - libnginx-mod-http-lua
   service.running:
     - enable: true
     - require:

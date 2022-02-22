@@ -7,7 +7,7 @@ prepare_ssl () {
     if $recreate_dhparam; then
         echo "no or to small dh.param found, regenerating with 2048 bit (takes a few minutes)"
         mkdir -p /app/etc
-        openssl dhparam 2048 -out /app/etc/dhparam.pem
+        openssl dhparam -out /app/etc/dhparam.pem 2048
     fi
     # certificate setup
     use_snakeoil=true

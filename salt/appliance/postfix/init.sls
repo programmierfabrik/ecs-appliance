@@ -39,10 +39,6 @@ opendkim:
         additional_net: {{ salt['pillar.get']('docker:net') }}
         domain: {{ salt['pillar.get']('appliance:domain') }}
 
-/etc/default/opendkim:
-  file.managed:
-    - source: salt://appliance/postfix/opendkim.default
-
 {%- set dkimkey= salt['pillar.get']('appliance:dkim:key', False) or salt['cmd.run_stdout']('openssl genrsa 2048') %}
 /etc/dkimkeys/dkim.key:
   file.managed:
@@ -63,7 +59,6 @@ opendkim.service:
       - pkg: opendkim
     - watch:
       - file: /etc/opendkim.conf
-      - file: /etc/default/opendkim
       - file: /etc/dkimkeys/dkim.key
 
 postfix:
