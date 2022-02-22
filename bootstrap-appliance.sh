@@ -39,7 +39,7 @@ export HOME=/app
 adduser --disabled-password --gecos ",,," --home "/app" app
 cp -r /etc/skel/. /app/.
 if test ! -f /app/appliance; then
-    gosu app git clone https://github.com/ecs-org/ecs-appliance /app/appliance
+    gosu app git clone https://github.com/programmierfabrik/ecs-appliance /app/appliance
 fi
 gosu app git -C /app/appliance fetch -a -p
 gosu app git -C /app/appliance checkout -f $branch
