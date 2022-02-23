@@ -46,10 +46,30 @@ include:
 #     - onchanges:
 #       - file: docker-network
 
-docker:
+docker-gpg-key:
   cmd.run:
-    - name: sh -c "$(curl -fsSL https://get.docker.com)"
-    - onlyif: if [[ -z "$(which docker)" ]]; then exit 0; else exit 1; fi
+    - name:  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+    - onlyif: if [ ! -f /usr/share/keyrings/docker-archive-keyring.gpg ]; then exit 0; else exit 1; fi
+
+docker-repository:
+  cmd.run:
+    - name: |
+        echo \
+        "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+        focal stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+    - onlyif: if [ ! -f /etc/apt/sources.list.d/docker.list ]; then exit 0; else exit 1; fi
+    - require:
+      - cmd: docker-gpg-key
+
+docker:
+  pkg.installed:
+    - refresh: True
+    - pkgs:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    - require:
+      - cmd: docker-repository
 
 docker-compose:
   cmd.run:
