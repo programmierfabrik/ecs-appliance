@@ -1,8 +1,8 @@
 prepare_postgresql () {
     local mem_kb mem_mb pg_mb cores
     local MAX_CONNECTIONS SHARED_BUFFERS WORK_MEM EFFECTIVE_CACHE_SIZE
-    local pgcfg=/etc/postgresql/9.5/main/postgresql.conf
-    local template=/etc/postgresql/9.5/main/ecs.conf.template
+    local pgcfg=/etc/postgresql/12/main/postgresql.conf
+    local template=/etc/postgresql/12/main/ecs.conf.template
 
     # tune postgresql to current vm memory and cores
     mem_kb=$(cat /proc/meminfo  | grep -i memtotal | sed -r "s/[^:]+: *([0-9]+) .*/\1/g")
