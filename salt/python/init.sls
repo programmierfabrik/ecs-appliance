@@ -9,7 +9,7 @@ python:
       - python3-setuptools
       - python3-venv
   cmd.run:
-    - name: curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip.py && python2 get-pip.py
+    - name: curl https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip.py && python2 /tmp/get-pip.py
     - onlyif: if [[ -z "$(which pip2)" ]]; then exit 0; else exit 1; fi
 
 {# XXX pip and virtualenv is broken on xenial, update from pypi #}
