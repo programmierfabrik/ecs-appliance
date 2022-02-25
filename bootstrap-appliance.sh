@@ -38,7 +38,7 @@ locale-gen en_US.UTF-8 de_DE.UTF-8 && dpkg-reconfigure locales
 apt-get install gcc make
 curl https://gnupg.org/ftp/gcrypt/gnupg/gnupg-1.4.23.tar.bz2 --output gnupg-1.4.23.tar.bz2
 tar xjf gnupg-1.4.23.tar.bz2
-cd gnupg-1.4.23; ./configure; make; make install
+cd gnupg-1.4.23; ./configure --prefix="/opt/gpg"; make; make install
 
 export HOME=/app
 adduser --disabled-password --gecos ",,," --home "/app" app

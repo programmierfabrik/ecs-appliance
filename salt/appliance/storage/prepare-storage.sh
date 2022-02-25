@@ -36,7 +36,7 @@ prepare_storagevault () {
     echo "writing storage vault keys to ecs-gpg"
     # wipe directory clean of *.gpg files, but not eg. random_seed and do not remove directory
     find /data/ecs-gpg -mindepth 1 -name "*.gpg*" -delete
-    echo "$ECS_VAULT_ENCRYPT" | gpg --homedir /data/ecs-gpg --batch --yes --import --
-    echo "$ECS_VAULT_SIGN" | gpg --homedir /data/ecs-gpg --batch --yes --import --
+    echo "$ECS_VAULT_ENCRYPT" | /opt/gpg/bin/gpg --homedir /data/ecs-gpg --batch --yes --import --
+    echo "$ECS_VAULT_SIGN" | /opt/gpg/bin/gpg --homedir /data/ecs-gpg --batch --yes --import --
     chown -R 1000:1000 /data/ecs-gpg
 }

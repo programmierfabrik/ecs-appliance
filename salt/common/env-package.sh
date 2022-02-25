@@ -74,12 +74,12 @@ if test -e $targetdir/gpgkeys.txt; then
     if test -d $gpghome; then rm -r $gpghome; fi
     mkdir $gpghome
 
-    cat $targetdir/gpgkeys.txt | gpg $gpgopts --import --
-    keylist=$(gpg $gpgopts --keyid-format 0xLONG --list-keys | grep "pub .*/0x" | sed -r "s/pub.+0x([0-9A-F]+).+/\1/g")
+    cat $targetdir/gpgkeys.txt | /opt/gpg/bin/gpg $gpgopts --import --
+    keylist=$(/opt/gpg/bin/gpg $gpgopts --keyid-format 0xLONG --list-keys | grep "pub .*/0x" | sed -r "s/pub.+0x([0-9A-F]+).+/\1/g")
 
     echo "Package and encrypt config to $outputname , using keys: $keylist"
     tar cz env.yml env.yml.pdf env-cidata.iso | \
-        LANG=c gpg $gpgopts --trust-model always --encrypt \
+        LANG=c /opt/gpg/bin/gpg $gpgopts --trust-model always --encrypt \
             $(for r in $keylist; do printf " --recipient %s " "$r"; done) \
         > $outputname
 

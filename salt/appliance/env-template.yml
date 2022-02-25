@@ -12,7 +12,7 @@
 {%- macro gpg1_secret(ownername) -%}
 {%- set batch = 'Key-Type: 1\nKey-Length: 2048\nExpire-Date: 0\n'+
     'Name-Real: '+ ownername+ '\n%secring -&1\n%pubring -&2\n%commit\n' -%}
-{%- set gpg_call = 'gpg --quiet --no-default-keyring --enable-special-filenames --batch --yes --armor --gen-key' -%}
+{%- set gpg_call = '/opt/gpg/bin/gpg --quiet --no-default-keyring --enable-special-filenames --batch --yes --armor --gen-key' -%}
 {{ salt['cmd.run_stdout'](gpg_call, stdin=batch) }}
 {%- endmacro %}
 {%- macro gpg2_secret(ownername) -%}
@@ -22,13 +22,13 @@
     '%no-protection\n'+
     '%commit\n' -%}
 {%- set gpg_call = 't="$(mktemp -d -p /run)"; cat - | '+
-    ' gpg --homedir $t --batch --yes --gen-key; '+
-    ' gpg --homedir $t --batch --yes --armor --export-secret-keys;'+
+    ' /opt/gpg/bin/gpg --homedir $t --batch --yes --gen-key; '+
+    ' /opt/gpg/bin/gpg --homedir $t --batch --yes --armor --export-secret-keys;'+
     ' rm -r $t' -%}
 {{ salt['cmd.run_stdout'](gpg_call, stdin=batch, python_shell=True) }}
 {%- endmacro -%}
 {%- macro gpg_secret(ownername) -%}
-{%- set gpg_major_ver = salt['cmd.run_stdout']('gpg --version | head -1 | sed -r "s/[^0-9\.]+([0-9]+)\.([0-9]+)\.([0-9]+)/\1/g"', python_shell=True) -%}
+{%- set gpg_major_ver = salt['cmd.run_stdout']('/opt/gpg/bin/gpg --version | head -1 | sed -r "s/[^0-9\.]+([0-9]+)\.([0-9]+)\.([0-9]+)/\1/g"', python_shell=True) -%}
 {%- if gpg_major_ver == "1" -%}
 {{ gpg1_secret(ownername) }}
 {%- else -%}
