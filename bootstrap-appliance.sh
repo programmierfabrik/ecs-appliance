@@ -35,7 +35,7 @@ apt-get -y update
 apt-get -y install software-properties-common locales git gosu curl
 locale-gen en_US.UTF-8 de_DE.UTF-8 && dpkg-reconfigure locales
 
-apt-get install gcc make
+apt-get install -y gcc make
 curl https://gnupg.org/ftp/gcrypt/gnupg/gnupg-1.4.23.tar.bz2 --output gnupg-1.4.23.tar.bz2
 tar xjf gnupg-1.4.23.tar.bz2
 cd gnupg-1.4.23; ./configure --prefix="/opt/gpg"; make; make install
