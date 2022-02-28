@@ -23,7 +23,7 @@ late_postgresql.service:
 postgresql:
   pkg.installed:
     - pkgs:
-      - postgresql-12
+      - postgresql
       - postgresql-contrib
   service.running:
     - enable: true
