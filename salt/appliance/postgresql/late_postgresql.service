@@ -3,7 +3,7 @@
 [Unit]
 Description=Delay PostgreSQL RDBMS
 After=network.target
-Before=postgresql@9.5-main.service
+Before=postgresql@12-main.service
 
 [Service]
 Type=oneshot
@@ -13,4 +13,4 @@ RemainAfterExit=on
 
 [Install]
 WantedBy=multi-user.target
-RequiredBy=postgresql@9.5-main.service
+RequiredBy=postgresql@12-main.service
