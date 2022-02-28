@@ -19,33 +19,6 @@ include:
   {%- endfor %}
 {%- endif %}
 
-# etc-network-interfaces:
-#   file.touch:
-#     - name: /etc/network/interfaces
-
-# docker-network:
-#   file.blockreplace:
-#     - name: /etc/network/interfaces
-#     - marker_start: |
-#         auto docker0
-#     - marker_end: |
-#             bridge_stp off
-#     - append_if_not_found: true
-#     - content: |
-#         iface docker0 inet static
-#             address {{ salt['pillar.get']('docker:ip') }}
-#             netmask {{ salt['pillar.get']('docker:netmask') }}
-#             bridge_fd 0
-#             bridge_maxwait 0
-#             bridge_ports none
-#     - require:
-#       - file: etc-network-interfaces
-#       - pkg: docker-requisites
-#   cmd.run:
-#     - name: ifup docker0
-#     - onchanges:
-#       - file: docker-network
-
 docker-gpg-key:
   cmd.run:
     - name:  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
