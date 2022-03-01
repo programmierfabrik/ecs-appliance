@@ -2,7 +2,7 @@
 
 [Unit]
 Description=Delay PostgreSQL RDBMS
-After=network-online.target
+After=network-online.target docker.service
 Before=postgresql@.service
 
 [Service]
