@@ -26,6 +26,7 @@ postgresql:
 /etc/systemd/system/postgresql@12-main.service.d/override.conf:
   file.managed:
     - source: salt://appliance/postgresql/postgresql-override.conf
+    - makedirs: true
 
 /etc/postgresql/12/main/pg_hba.conf:
   file.replace:
