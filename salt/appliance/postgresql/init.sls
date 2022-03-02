@@ -9,17 +9,6 @@ include:
     - require:
       - sls: appliance.directories
 
-late_postgresql.service:
-  file.managed:
-    - name: /etc/systemd/system/late_postgresql.service
-    - source: salt://appliance/postgresql/late_postgresql.service
-    - watch_in:
-      - cmd: systemd_reload
-  cmd.wait:
-    - name: systemctl enable late_postgresql.service
-    - watch:
-      - file: late_postgresql.service
-
 postgresql:
   pkg.installed:
     - pkgs:
@@ -29,11 +18,14 @@ postgresql:
     - enable: true
     - require:
       - pkg: postgresql
-      - cmd: late_postgresql.service
       - sls: docker
       - file: /etc/postgresql/12/main/pg_hba.conf
     - watch:
       - file: /etc/postgresql/12/main/pg_hba.conf
+
+/etc/systemd/system/postgresql@12-main.service.d/override.conf:
+  file.managed:
+    - source: salt://appliance/postgresql/postgresql-override.conf
 
 /etc/postgresql/12/main/pg_hba.conf:
   file.replace:
