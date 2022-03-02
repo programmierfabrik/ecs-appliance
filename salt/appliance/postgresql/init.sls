@@ -43,7 +43,7 @@ postgresql:
     - source: salt://appliance/postgresql/ecs.conf.template
 
 {% for p,r in [
-  ("listen_addresses", "listen_addresses = '" + salt['pillar.get']('docker:ip') + "'"),
+  ("listen_addresses", "listen_addresses = 'localhost," + salt['pillar.get']('docker:ip') + "'"),
   ("shared_preload_libraries", "shared_preload_libraries = 'pg_stat_statements'"),
   ("pg_stat_statements.track", "pg_stat_statements.track = all")
   ] %}
