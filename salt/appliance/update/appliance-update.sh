@@ -37,60 +37,6 @@ check_system_package_update() {
     $system_updates_waiting
 }
 
-
-check_docker_update(){
-    local docker_list docker_old docker_new
-    local docker_need_update=false
-    # needs up to date package list for proper results
-    docker_list=$(apt-cache policy docker-engine -q | grep -E "(Installed|Candidate)")
-    docker_old=$(printf "%s" "$docker_list" | grep "Installed" | sed -r "s/.*Installed: ([^ ]+).*/\1/")
-    docker_new=$(printf "%s" "$docker_list" | grep "Candidate" | sed -r "s/.*Candidate: ([^ ]+).*/\1/")
-    if test "$docker_old" != "$docker_new"; then
-        echo "Info: New docker-engine available. Installed=$docker_old , Candidate=$docker_new"
-        docker_need_update=true
-    fi
-    $docker_need_update
-}
-
-
-check_compose_update() {
-    local compose_need_update=false
-    local update_path update_array constraint_path constraint_array
-    local current_version target_version max_version
-    update_path=$(/usr/local/bin/pip2 list -o --format=columns | grep docker-compose)
-    if test $? -eq 0; then
-        update_array=($update_path)
-        current_version=${update_array[1]}
-        target_version=${update_array[2]}
-        constraint_path=$(cat /etc/default/docker-compose-constraint.txt | grep docker-compose)
-        constraint_array=($constraint_path)
-        max_version=${constraint_array[2]}
-        if version_gt $target_version $max_version; then
-            echo "Debug: not updating docker-compose, target>max (current: $current_version, max: $max_version, target: $target_version)"
-        else
-            compose_need_update=true
-            echo "Information: docker-compose has update waiting: (current: $current_version, max: $max_version, target: $target_version)"
-        fi
-    fi
-    $compose_need_update
-}
-
-
-check_postgres_update(){
-    local postgres_list postgres_old postgres_new
-    local postgres_need_update=false
-    # needs up to date package list for proper results
-    postgres_list=$(apt-cache policy postgresql-9.5 -q | grep -E "(Installed|Candidate)")
-    postgres_old=$(printf "%s" "$postgres_list" | grep "Installed" | sed -r "s/.*Installed: ([^ ]+).*/\1/")
-    postgres_new=$(printf "%s" "$postgres_list" | grep "Candidate" | sed -r "s/.*Candidate: ([^ ]+).*/\1/")
-    if test "$postgres_old" != "$postgres_new"; then
-        echo "Info: New postgresql-9.5 available. Installed=$postgres_old , Candidate=$postgres_new"
-        postgres_need_update=true
-    fi
-    $postgres_need_update
-}
-
-
 check_letsencrypt_update(){
     local RENEW_DAYS valid_until new_metric cert_metric
     local letsencrypt_need_update=false
@@ -237,63 +183,20 @@ check_ecs_update() {
     check_system_package_update
     need_system_update=$(test $? -eq 0 -o \
         -e /app/etc/flags/force.update.system && echo true || echo false)
-    check_docker_update
-    need_docker_update=$(test $? -eq 0 -o \
-        -e /app/etc/flags/force.update.docker && echo true || echo false)
-    check_compose_update
-    need_compose_update=$(test $? -eq 0 -o \
-        -e /app/etc/flags/force.update.compose && echo true || echo false)
-    check_postgres_update
-    need_postgres_update=$(test $? -eq 0 -o \
-        -e /app/etc/flags/force.update.postgres && echo true || echo false)
     check_letsencrypt_update
     need_letsencrypt_update=$(test $? -eq 0 -o \
         -e /app/etc/flags/force.update.letsencrypt && echo true || echo false)
     check_ecs_update
     need_ecs_update=$(test $? -eq 0 -o \
         -e /app/etc/flags/force.update.ecs && echo true || echo false)
-    need_service_restart=$( ($need_docker_update || $need_compose_update ||
-        $need_postgres_update || $need_letsencrypt_update ||
+    need_service_restart=$( ($need_letsencrypt_update ||
         $need_appliance_update || $need_ecs_update) && echo true || echo false)
     echo "Information: Updates available for:"
     echo "need_system_update=$need_system_update"
-    echo "need_docker_update=$need_docker_update"
-    echo "need_compose_update=$need_compose_update"
-    echo "need_postgres_update=$need_postgres_update"
     echo "need_letsencrypt_update=$need_letsencrypt_update"
     echo "need_appliance_update=$need_appliance_update"
     echo "need_ecs_update=$need_ecs_update"
     echo "need_service_restart=$need_service_restart"
-
-    if ($need_docker_update || $need_compose_update || $need_postgres_update); then
-        appliance_status "Appliance Update" "Preparing for Update"
-        echo "Info: shutting down appliance, because update of docker:$need_docker_update, compose:$need_compose_update or postgres:$need_postgres_update needs this"
-        if $need_docker_update; then
-            simple_metric docker_last_update counter "timestamp-epoch-seconds since last update to docker" $start_epoch_seconds
-            if test -e /app/etc/flags/force.update.docker; then
-                rm /app/etc/flags/force.update.docker
-            fi
-        fi
-        if $need_postgres_update; then
-            simple_metric postgres_last_update counter "timestamp-epoch-seconds since last update to postgres" $start_epoch_seconds
-            if test -e /app/etc/flags/force.update.postgres; then
-                rm /app/etc/flags/force.update.postgres
-            fi
-        fi
-        systemctl stop appliance
-        sleep 2 # Wait a little to settle still open connections
-        if $need_postgres_update; then
-            echo "Warning: prepare postgres update, kill all postgres connections to ecs except ourself"
-            gosu app psql ecs -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'ecs' AND pid <> pg_backend_pid();"
-        fi
-        if $need_compose_update; then
-            simple_metric compose_last_update counter "timestamp-epoch-seconds since last update to docker-compose" $start_epoch_seconds
-            if test -e /app/etc/flags/force.update.compose; then
-                rm /app/etc/flags/force.update.compose
-            fi
-            pip2 install -U --upgrade-strategy only-if-needed -c /etc/default/docker-compose-constraint.txt docker-compose
-        fi
-    fi
 
     if $need_system_update; then
         appliance_status "Appliance Update" "Unattended System Upgrades"
